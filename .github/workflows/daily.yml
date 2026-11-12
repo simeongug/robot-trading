@@ -1,0 +1,45 @@
+name: Robot quotidien (compte fictif)
+
+on:
+  schedule:
+    # Du lundi au vendredi, ~45 min après l'ouverture de Wall Street.
+    - cron: "47 14 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Simulation seulement (aucun ordre envoyé)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: robot
+  cancel-in-progress: false
+
+jobs:
+  trade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Exécution du robot
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: python -m bot.live
+      - name: Enregistrer le journal et le rapport
+        run: |
+          git config user.name "robot-trading"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add journal REPORT.md || true
+          git diff --cached --quiet && exit 0
+          git commit -m "Journal du $(date -u +%Y-%m-%d)"
+          git pull --rebase && git push

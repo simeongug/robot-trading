@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "strategy": "trend_sma200",
+  "cash_buffer": 0.02,
+  "drift_threshold": 0.03,
+  "min_trade_usd": 200,
+  "max_orders_per_run": 12,
+  "max_weight_per_symbol": 1.0
+}
