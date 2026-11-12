@@ -1,6 +1,6 @@
 {
   "enabled": true,
-  "strategy": "trend_sma200",
+  "strategy": "rotation_momentum",
   "cash_buffer": 0.02,
   "drift_threshold": 0.03,
   "min_trade_usd": 200,
